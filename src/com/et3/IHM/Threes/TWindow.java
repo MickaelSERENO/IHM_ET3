@@ -1,5 +1,6 @@
 package com.et3.IHM.Threes;
 import com.et3.IHM.Threes.TContainer;
+import com.et3.IHM.Threes.Direction;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,10 +10,14 @@ import javax.swing.JPanel;
 
 public class TWindow extends JFrame implements KeyListener
 {
+	private TContainer m_container;
+
+	//KeyListener Interface
 	public void keyPressed(KeyEvent e)
 	{
 		if(e.getKeyCode() == KeyEvent.VK_UP)
-			System.out.println("Key Up");
+			m_container.move(Direction.TOP);
+
 		else if(e.getKeyCode() == KeyEvent.VK_DOWN)
 		{}
 		
@@ -30,8 +35,8 @@ public class TWindow extends JFrame implements KeyListener
  	
 	public void keyTyped(KeyEvent e)
 	{
- 		
 	}
+	//End KeyListener Interface
 
 	public TWindow()
 	{
@@ -45,11 +50,13 @@ public class TWindow extends JFrame implements KeyListener
 		  
 		  //Init the panel
 		  JPanel panel = new JPanel();
-		  panel.setLayout(new TContainer(panel));
+		  m_container = new TContainer(panel);
+		  panel.setLayout(m_container);
 		  panel.setFocusable(true);
 		  panel.requestFocusInWindow();
-		  panel.addKeyListener(this);
+		  panel.addKeyListener(this); //Used to get the event applied to this panel
 		  setContentPane(panel);
+
 		  //Show the window
 		  setVisible(true);
 	}
