@@ -68,63 +68,216 @@ public class TContainer extends GridLayout
 
 	public void move(int dir)
 	{
-		//Determine how many tiles if available per column
-		int[] nbTilesColumn = new int[4];
-
-		for(int i=0; i < 4; i++)
+		//Look per column
+		if(dir == Direction.TOP || dir == Direction.BOTTOM)
 		{
-			nbTilesColumn[i] = 0;
+			//Determine how many tiles if available per column
+			int[] nbTilesColumn = new int[4];
+			for(int i=0; i < 4; i++)
+			{
+				nbTilesColumn[i] = 0;
+
+				for(int j=0; j < 4; j++)
+					if(!m_tiles[i][j].getText().equals("")) //Valid tile
+						nbTilesColumn[i]++;
+			}
+
+			for(int i=0; i < 4; i++)
+			{
+				boolean hasMove = false;
+				for(int j=0; j < 3; j++)
+				{
+					//Move to the top
+					if(dir == Direction.TOP)
+					{
+						if(m_tiles[i][j].getText().equals(""))
+						{
+							hasMove = true;
+							m_tiles[i][j].setText(m_tiles[i][j+1].getText());
+							m_tiles[i][j+1].setText("");
+						}
+					}
+
+					//Move to the bottom
+					else
+					{
+						if(m_tiles[i][3-j].getText().equals(""))
+						{
+							hasMove = true;
+							m_tiles[i][3-j].setText(m_tiles[i][2-j].getText());
+							m_tiles[i][2-j].setText("");
+						}
+					}
+
+					//if the tile is blocked and is equals to the next one
+					if(hasMove == false)
+					{
+						if(dir == Direction.TOP)
+						{
+							if(m_tiles[i][j].getText().equals("1"))
+							{
+								if(m_tiles[i][j+1].getText().equals("2"))
+								{
+									m_tiles[i][j].setText("3");
+									m_tiles[i][j+1].setText("");
+								}
+							}
+								
+							else if(m_tiles[i][j].getText().equals("2"))
+							{
+								if(m_tiles[i][j+1].getText().equals("1"))
+								{
+									m_tiles[i][j].setText("3");
+									m_tiles[i][j+1].setText("");
+								}
+							}
+
+							else if(m_tiles[i][j].getText().equals(m_tiles[i][j+1].getText()))
+							{
+								m_tiles[i][j].setText(Integer.toString(Integer.parseInt(m_tiles[i][j].getText())*2)); //Multiply by two its value
+								m_tiles[i][j+1].setText("");
+							}
+						}
+
+						else
+						{
+							if(m_tiles[i][3-j].getText().equals("1"))
+							{
+								if(m_tiles[i][2-j].getText().equals("2"))
+								{
+									m_tiles[i][3-j].setText("3");
+									m_tiles[i][2-j].setText("");
+								}
+							}
+								
+							else if(m_tiles[i][3-j].getText().equals("2"))
+							{
+								if(m_tiles[i][2-j].getText().equals("1"))
+								{
+									m_tiles[i][3-j].setText("3");
+									m_tiles[i][2-j].setText("");
+								}
+							}
+
+							else if(m_tiles[i][3-j].getText().equals(m_tiles[i][2-j].getText()))
+							{
+								m_tiles[i][3-j].setText(Integer.toString(Integer.parseInt(m_tiles[i][3-j].getText())*2)); //Multiply by two its value
+								m_tiles[i][2-j].setText("");
+							}
+						}
+					}
+				}
+				if(m_tiles[i][3].getText().equals("") && dir==Direction.TOP)
+					addTile(4*3+i);
+				else if(m_tiles[i][0].getText().equals("") && dir==Direction.BOTTOM)
+					addTile(i);
+			}
+		}
+
+		else if(dir == Direction.LEFT || dir == Direction.RIGHT)
+		{
+			//Determine how many tiles if available per row
+			int[] nbTilesRow = new int[4];
+			for(int j=0; j < 4; j++)
+			{
+				nbTilesRow[j] = 0;
+
+				for(int i=0; i < 4; i++)
+					if(!m_tiles[i][j].getText().equals("")) //Valid tile
+						nbTilesRow[j]++;
+			}
 
 			for(int j=0; j < 4; j++)
-				if(!m_tiles[i][j].getText().equals("")) //Valid tile
-					nbTilesColumn[i]++;
-		}
-
-		for(int i=0; i < 4; i++)
-		{
-			boolean hasMove = false;
-			for(int j=0; j < 3; j++)
 			{
-				if(m_tiles[i][j].getText().equals(""))
+				boolean hasMove = false;
+				for(int i=0; i < 3; i++)
 				{
-					hasMove = true;
-					m_tiles[i][j].setText(m_tiles[i][j+1].getText());
-					m_tiles[i][j+1].setText("");
-				}
-
-				//Else if the tile is blocked and is equals to the next one
-				else if(hasMove == false)
-				{
-					if(m_tiles[i][j].getText().equals("1"))
+					//Move to the LEFT
+					if(dir == Direction.LEFT)
 					{
-						if(m_tiles[i][j+1].getText().equals("2"))
+						if(m_tiles[i][j].getText().equals(""))
 						{
-							m_tiles[i][j].setText("3");
-							m_tiles[i][j+1].setText("");
-						}
-					}
-						
-					else if(m_tiles[i][j].getText().equals("2"))
-					{
-						if(m_tiles[i][j+1].getText().equals("1"))
-						{
-							m_tiles[i][j].setText("3");
-							m_tiles[i][j+1].setText("");
+							hasMove = true;
+							m_tiles[i][j].setText(m_tiles[i+1][j].getText());
+							m_tiles[i+1][j].setText("");
 						}
 					}
 
-					else if(m_tiles[i][j].getText().equals(m_tiles[i][j+1].getText()))
+					//Move to the RIGHT
+					else
 					{
-						m_tiles[i][j].setText(Integer.toString(Integer.parseInt(m_tiles[i][j].getText())*2)); //Multiply by two its value
-						m_tiles[i][j+1].setText("");
+						if(m_tiles[3-i][j].getText().equals(""))
+						{
+							hasMove = true;
+							m_tiles[3-i][j].setText(m_tiles[2-i][j].getText());
+							m_tiles[2-i][j].setText("");
+						}
 					}
+
+					//if the tile is blocked and is equals to the next one
+					if(hasMove == false)
+					{
+						if(dir == Direction.LEFT)
+						{
+							if(m_tiles[i][j].getText().equals("1"))
+							{
+								if(m_tiles[i+1][j].getText().equals("2"))
+								{
+									m_tiles[i][j].setText("3");
+									m_tiles[i+1][j].setText("");
+								}
+							}
+								
+							else if(m_tiles[i][j].getText().equals("2"))
+							{
+								if(m_tiles[i+1][j].getText().equals("1"))
+								{
+									m_tiles[i][j].setText("3");
+									m_tiles[i+1][j].setText("");
+								}
+							}
+
+							else if(m_tiles[i][j].getText().equals(m_tiles[i+1][j].getText()))
+							{
+								m_tiles[i][j].setText(Integer.toString(Integer.parseInt(m_tiles[i][j].getText())*2)); //Multiply by two its value
+								m_tiles[i+1][j].setText("");
+							}
+						}
+
+						else
+						{
+							if(m_tiles[3-i][j].getText().equals("1"))
+							{
+								if(m_tiles[2-i][j].getText().equals("2"))
+								{
+									m_tiles[3-i][j].setText("3");
+									m_tiles[2-i][j].setText("");
+								}
+							}
+								
+							else if(m_tiles[3-i][j].getText().equals("2"))
+							{
+								if(m_tiles[2-i][j].getText().equals("1"))
+								{
+									m_tiles[3-i][j].setText("3");
+									m_tiles[2-i][j].setText("");
+								}
+							}
+
+							else if(m_tiles[3-i][j].getText().equals(m_tiles[2-i][j].getText()))
+							{
+								m_tiles[3-i][j].setText(Integer.toString(Integer.parseInt(m_tiles[3-i][j].getText())*2)); //Multiply by two its value
+								m_tiles[2-i][j].setText("");
+							}
+						}
+					}
+				if(m_tiles[3][j].getText().equals("") && dir==Direction.LEFT)
+					addTile(4*j+3);
+				else if(m_tiles[0][j].getText().equals("") && dir==Direction.RIGHT)
+					addTile(4*j);
 				}
 			}
-			if(m_tiles[i][3].getText().equals(""))
-				addTile(4*3+i);
 		}
-
-		updateTilesAvailable();
 	}
 
 	private void updateTilesAvailable()
@@ -139,5 +292,46 @@ public class TContainer extends GridLayout
 
 		if(nbTilesAvailable < 12)
 			m_tilesAvailable[nbTilesAvailable] = -1;
+	}
+
+	public boolean testEnd()
+	{
+		for(int i=0; i < 3; i++)
+			for(int j=0; j < 3; j++)
+			{
+				if(m_tiles[i][j].getText().equals(""))
+					return false;
+				else if(m_tiles[i][j].getText().equals("2"))
+				{
+				    if(m_tiles[i][j+1].getText().equals("1"))
+						return false;
+					else if(m_tiles[i+1][j].getText().equals("1"))
+						return false;
+				}
+
+				else if(m_tiles[i][j].getText().equals("1"))
+				{
+				    if(m_tiles[i][j+1].getText().equals("2"))
+						return false;
+					else if(m_tiles[i+1][j].getText().equals("2"))
+						return false;
+				}
+
+				else if(m_tiles[i][j].getText().equals(m_tiles[i][j+1].getText()))
+						return false;
+
+				else if(m_tiles[i][j].getText().equals(m_tiles[i+1][j].getText()))
+						return false;
+			}
+		return true;
+	}
+
+	public int getScore()
+	{
+		int score = 0;
+		for(int i=0; i < 3; i++)
+			for(int j=0; j < 3; j++)
+				score = score + Integer.parseInt(m_tiles[i][j].getText());
+		return score;
 	}
 }
