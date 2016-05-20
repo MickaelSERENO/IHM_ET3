@@ -25,6 +25,7 @@ public class Start extends JPanel
 
 		m_startButton = new JButton("Start");
 		m_startButton.addActionListener(m_buttonListener);
+
 		add(m_startButton);
 	}
 

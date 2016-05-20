@@ -2,13 +2,16 @@ package com.et3.IHM.Threes;
 
 import java.awt.GridLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.BorderFactory;
+import java.awt.Color;
 import com.et3.IHM.Threes.Direction;
 
 public class TContainer extends GridLayout
 {
 	//Store tiles;
-	private JButton[][] m_tiles;
+	private JLabel[][] m_tiles;
 
 	//Tell the tiles id available (empty)
 	private int[] m_tilesAvailable;
@@ -16,16 +19,22 @@ public class TContainer extends GridLayout
 	public TContainer(JPanel panel)
 	{
 		//4*4 grid container
-		super(4, 4);
-		m_tiles = new JButton[4][4];
+		super(4, 4, 6, 6);
+		m_tiles = new JLabel[4][4];
 		m_tilesAvailable = new int[16];
 		
 		//Init the grid
 		for(int j=0; j < 4; j++)
 			for(int i=0; i < 4; i++)
 			{
-				m_tiles[i][j] = new JButton(""); //Empty Button
+				m_tiles[i][j] = new JLabel(""); //Empty Button
+				m_tiles[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+
 				panel.add(m_tiles[i][j]);
+				m_tiles[i][j].setHorizontalAlignment(JLabel.CENTER);
+				m_tiles[i][j].setVerticalAlignment(JLabel.CENTER);
+				m_tiles[i][j].setOpaque(true);
+
 				m_tilesAvailable[4*i+j] = 4*i+j; //Tile 4*i + j available (empty)
 			}
 		
@@ -38,6 +47,8 @@ public class TContainer extends GridLayout
 			//Remember, its m_tilesAvailable which contains the id of the tile (very importante !)
 			addTile(m_tilesAvailable[x]);
 		}
+		updateTilesAvailable();
+		updateColor();
 	}
 
 	public void addTile(int pos)
@@ -71,17 +82,6 @@ public class TContainer extends GridLayout
 		//Look per column
 		if(dir == Direction.TOP || dir == Direction.BOTTOM)
 		{
-			//Determine how many tiles if available per column
-			int[] nbTilesColumn = new int[4];
-			for(int i=0; i < 4; i++)
-			{
-				nbTilesColumn[i] = 0;
-
-				for(int j=0; j < 4; j++)
-					if(!m_tiles[i][j].getText().equals("")) //Valid tile
-						nbTilesColumn[i]++;
-			}
-
 			for(int i=0; i < 4; i++)
 			{
 				boolean hasMove = false;
@@ -167,26 +167,53 @@ public class TContainer extends GridLayout
 						}
 					}
 				}
-				if(m_tiles[i][3].getText().equals("") && dir==Direction.TOP)
-					addTile(4*3+i);
-				else if(m_tiles[i][0].getText().equals("") && dir==Direction.BOTTOM)
-					addTile(i);
+			}
+
+			if(dir == Direction.TOP)
+			{
+				for(int i=0; i < 4; i++)
+				{
+					if(m_tiles[i][3].getText().equals(""))
+					{
+						int append = 0;
+						while(append == 0)
+						{
+							int x = (int)(Math.random()*1000) % (4-i) + i; //Get a random number from i to 3
+							if(m_tiles[x][3].getText().equals(""))
+							{
+								append = 1;
+								addTile(4*3+x);
+							}
+						}
+						break;
+					}
+				}
+			}
+
+			else
+			{
+				for(int i=0; i < 4; i++)
+				{
+					if(m_tiles[i][0].getText().equals(""))
+					{
+						int append = 0;
+						while(append == 0)
+						{
+							int x = (int)(Math.random()*1000) % (4-i) + i; //Get a random number from i to 3
+							if(m_tiles[x][0].getText().equals("") && dir==Direction.BOTTOM)
+							{
+								append = 1;
+								addTile(x);
+							}
+						}
+						break;
+					}
+				}
 			}
 		}
 
 		else if(dir == Direction.LEFT || dir == Direction.RIGHT)
 		{
-			//Determine how many tiles if available per row
-			int[] nbTilesRow = new int[4];
-			for(int j=0; j < 4; j++)
-			{
-				nbTilesRow[j] = 0;
-
-				for(int i=0; i < 4; i++)
-					if(!m_tiles[i][j].getText().equals("")) //Valid tile
-						nbTilesRow[j]++;
-			}
-
 			for(int j=0; j < 4; j++)
 			{
 				boolean hasMove = false;
@@ -271,13 +298,51 @@ public class TContainer extends GridLayout
 							}
 						}
 					}
-				if(m_tiles[3][j].getText().equals("") && dir==Direction.LEFT)
-					addTile(4*j+3);
-				else if(m_tiles[0][j].getText().equals("") && dir==Direction.RIGHT)
-					addTile(4*j);
+				}
+			}
+
+			if(dir == Direction.LEFT)
+			{
+				for(int i=0; i < 4; i++)
+				{
+					if(m_tiles[3][i].getText().equals(""))
+					{
+						int append = 0;
+						while(append == 0)
+						{
+							int x = (int)(Math.random()*1000) % (4-i)+i; //Get a random number from i to 3
+							if(m_tiles[3][x].getText().equals(""))
+							{
+								append = 1;
+								addTile(4*x+3);
+							}
+						}
+						break;
+					}
+				}
+			}
+			else
+			{
+				for(int i=0; i < 4; i++)
+				{
+					if(m_tiles[0][i].getText().equals(""))
+					{
+						int append = 0;
+						while(append == 0)
+						{
+							int x = (int)(Math.random()*1000) % (4-i) + i; //Get a random number from i to 3
+							if(m_tiles[0][x].getText().equals(""))
+							{
+								append = 1;
+								addTile(4*x);
+							}
+						}
+						break;
+					}
 				}
 			}
 		}
+		updateColor();
 	}
 
 	private void updateTilesAvailable()
@@ -296,33 +361,36 @@ public class TContainer extends GridLayout
 
 	public boolean testEnd()
 	{
-		for(int i=0; i < 3; i++)
-			for(int j=0; j < 3; j++)
+		for(int i=0; i < 4; i++)
+		{
+			for(int j=0; j < 4; j++)
 			{
 				if(m_tiles[i][j].getText().equals(""))
 					return false;
+
 				else if(m_tiles[i][j].getText().equals("2"))
 				{
-				    if(m_tiles[i][j+1].getText().equals("1"))
+				    if(j < 3 && m_tiles[i][j+1].getText().equals("1"))
 						return false;
-					else if(m_tiles[i+1][j].getText().equals("1"))
+					else if(i < 3 && m_tiles[i+1][j].getText().equals("1"))
 						return false;
 				}
 
 				else if(m_tiles[i][j].getText().equals("1"))
 				{
-				    if(m_tiles[i][j+1].getText().equals("2"))
+				    if(j < 3 && m_tiles[i][j+1].getText().equals("2"))
 						return false;
-					else if(m_tiles[i+1][j].getText().equals("2"))
+					else if(i < 3 && m_tiles[i+1][j].getText().equals("2"))
 						return false;
 				}
 
-				else if(m_tiles[i][j].getText().equals(m_tiles[i][j+1].getText()))
+				else if(j < 3 && m_tiles[i][j].getText().equals(m_tiles[i][j+1].getText()))
 						return false;
 
-				else if(m_tiles[i][j].getText().equals(m_tiles[i+1][j].getText()))
+				else if(i < 3 && m_tiles[i][j].getText().equals(m_tiles[i+1][j].getText()))
 						return false;
 			}
+		}
 		return true;
 	}
 
@@ -333,5 +401,21 @@ public class TContainer extends GridLayout
 			for(int j=0; j < 3; j++)
 				score = score + Integer.parseInt(m_tiles[i][j].getText());
 		return score;
+	}
+
+	private void updateColor()
+	{
+		for(int i=0; i < 4; i++)
+			for(int j=0; j < 4; j++)
+			{
+				if(m_tiles[i][j].getText().equals("2"))
+					m_tiles[i][j].setBackground(Color.red);
+				else if(m_tiles[i][j].getText().equals("1"))
+					m_tiles[i][j].setBackground(Color.blue);
+				else if(m_tiles[i][j].getText().equals(""))
+					m_tiles[i][j].setBackground(Color.gray);
+				else
+					m_tiles[i][j].setBackground(Color.white);
+			}
 	}
 }
