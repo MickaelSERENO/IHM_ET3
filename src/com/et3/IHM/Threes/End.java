@@ -34,6 +34,6 @@ public class End extends JPanel
 
 	public void resume(int score)
 	{
-		m_score.setText("Score : " + score);
+		m_score.setText("Perdu ! \t Score : " + score);
 	}
 }
