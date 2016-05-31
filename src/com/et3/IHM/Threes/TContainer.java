@@ -38,7 +38,7 @@ public class TContainer extends GridLayout
 				m_tilesAvailable[4*i+j] = 4*i+j; //Tile 4*i + j available (empty)
 			}
 		
-		for(int i=0; i < 2; i++)
+		for(int i=0; i < 4; i++)
 		{
 			int nbTiles = getTileAvailableSize();
 
@@ -55,8 +55,6 @@ public class TContainer extends GridLayout
 	{
 		int nbTiles = getTileAvailableSize();
 		int value = (int)(Math.random()*1000) % 2 + 1;
-
-		System.out.println("pos + " + pos + " " + pos % 4 + " " + pos/4);
 
 		m_tiles[pos%4][pos/4].setText(Integer.toString(value));
 
@@ -84,9 +82,9 @@ public class TContainer extends GridLayout
 		{
 			for(int i=0; i < 4; i++)
 			{
-				boolean hasMove = false;
 				for(int j=0; j < 3; j++)
 				{
+					boolean hasMove = false;
 					//Move to the top
 					if(dir == Direction.TOP)
 					{
@@ -200,7 +198,7 @@ public class TContainer extends GridLayout
 						while(append == 0)
 						{
 							int x = (int)(Math.random()*1000) % (4-i) + i; //Get a random number from i to 3
-							if(m_tiles[x][0].getText().equals("") && dir==Direction.BOTTOM)
+							if(m_tiles[x][0].getText().equals(""))
 							{
 								append = 1;
 								addTile(x);
