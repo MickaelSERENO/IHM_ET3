@@ -8,18 +8,23 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import javax.swing.Timer;
 
-public class TilePanel extends JPanel implements KeyListener
+public class TilePanel extends JPanel implements KeyListener, MouseListener
 {
 	private static final int TIMER_DELAY = 50;
 	private static final int SIZE_PER_TILE = 100;
 	private static final float MAX_TIMER   = 5.0f;
+
+	private Point m_mousePos;
 	private Timer m_timer=null;
 	private int m_numberTimer;
 	private Model m_model;
@@ -110,16 +115,22 @@ public class TilePanel extends JPanel implements KeyListener
 	public void keyPressed(KeyEvent e)
 	{
 		if(e.getKeyCode() == KeyEvent.VK_UP)
-			m_model.move(Direction.TOP);
+			move(Direction.TOP);
 
 		else if(e.getKeyCode() == KeyEvent.VK_DOWN)
-			m_model.move(Direction.BOTTOM);
+			move(Direction.BOTTOM);
 		
 		else if(e.getKeyCode() == KeyEvent.VK_LEFT)
-			m_model.move(Direction.LEFT);
+			move(Direction.LEFT);
 		
 		else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-			m_model.move(Direction.RIGHT);
+			move(Direction.RIGHT);
+
+	}
+
+	public void move(int d)
+	{
+		m_model.move(d);
 
 		if(m_model.testEnd())
 			m_inGame.addEnd();
@@ -158,6 +169,54 @@ public class TilePanel extends JPanel implements KeyListener
 	}
 	//End KeyListener Interface
 	
+	//Start MouseListener Interface
+	public void mousePressed(MouseEvent e)
+   	{
+		if(e.getButton() == MouseEvent.BUTTON1)
+			m_mousePos = e.getPoint();
+    }
+
+    public void mouseReleased(MouseEvent e)
+   	{
+		if(e.getButton() == MouseEvent.BUTTON1)
+		{
+			Point p = e.getPoint();
+
+			//If the motion is enough to be taken
+			if((-m_mousePos.x + p.x) * (-m_mousePos.x + p.x) + 
+			   (-m_mousePos.y + p.y) * (-m_mousePos.y + p.y) > 400)
+			{
+				if((p.x - m_mousePos.x) * (p.x - m_mousePos.x) < (p.y - m_mousePos.y) * (p.y - m_mousePos.y))
+				{
+					if(p.y - m_mousePos.y > 0)
+						move(Direction.BOTTOM);
+					else
+						move(Direction.TOP);
+				}
+				else
+				{
+					if(p.x - m_mousePos.x > 0)
+						move(Direction.RIGHT);
+					else
+						move(Direction.LEFT);
+				}
+			}
+		}
+    }
+
+    public void mouseEntered(MouseEvent e)
+   	{
+    }
+
+    public void mouseExited(MouseEvent e)
+   	{
+    }
+
+    public void mouseClicked(MouseEvent e) 
+	{
+    }
+	//End MouseListener
+	
 
 	public TilePanel(InGame2 window)
 	{
@@ -172,6 +231,7 @@ public class TilePanel extends JPanel implements KeyListener
 
 		updateGraphics(true);
 		addKeyListener(this);
+		addMouseListener(this);
 		setFocusable(true);
 		requestFocusInWindow();
 		m_numberTimer = 0;
