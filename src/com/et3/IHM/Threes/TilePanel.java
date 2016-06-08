@@ -183,7 +183,7 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 			m_popup.setVisible(false);
 		}
 
-		else if(e.getButton() == MouseEvent.BUTTON2)
+		else if(e.getButton() == MouseEvent.BUTTON3)
 		{
 			m_popup.setVisible(true);
 			m_popup.show(this, e.getPoint().x, e.getPoint().y);
@@ -243,11 +243,9 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 				m_tiles[i][j] = new Tile();
 
 		m_popup = new JPopupMenu();
-		m_pieMenu = new PieMenu(50);
-		m_pieMenu.add("Up");
-		m_pieMenu.add("Left");
-		m_pieMenu.add("Down");
-		m_pieMenu.add("Right");
+		m_pieMenu = new PieMenu(this, 50);
+		m_popup.setBorderPainted(false);
+		m_popup.setBackground(new Color(0, 0, 0, 0));
 		m_popup.add(m_pieMenu);
 
 		updateGraphics(true);
