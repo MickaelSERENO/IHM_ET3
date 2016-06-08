@@ -154,6 +154,9 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener, Mou
 
 	public void move(int d)
 	{
+		if(m_model.testEnd())
+			return;
+
 		m_model.move(d);
 
 		if(m_model.testEnd())
