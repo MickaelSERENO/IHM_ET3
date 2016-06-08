@@ -39,6 +39,7 @@ public class InGame2 extends JPanel
 
 		add(horizontal);
 		setVisible(true);
+
 		add(m_endPanel);
 		m_endPanel.setVisible(false);
 	}
