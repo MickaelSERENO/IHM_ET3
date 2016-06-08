@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -20,7 +21,7 @@ import java.awt.Point;
 import javax.swing.Timer;
 import javax.swing.JPopupMenu;
 
-public class TilePanel extends JPanel implements KeyListener, MouseListener
+public class TilePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener
 {
 	private static final int TIMER_DELAY = 50;
 	private static final int SIZE_PER_TILE = 100;
@@ -28,6 +29,11 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 
 	private Point m_mousePos;
 	private Timer m_timer=null;
+	private Timer m_clickTimer = null;
+	private int m_clickPie[];
+	private int m_currentMousePos[];
+	private boolean m_pieTimerTriggered = false;
+
 	private int m_numberTimer;
 	private Model m_model;
 	private Tile m_tiles[][];
@@ -35,6 +41,19 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 
 	private PieMenu m_pieMenu;
 	private JPopupMenu m_popup;
+	private TilePanel m_this;
+
+	private ActionListener m_pieMenuHandler = new ActionListener()
+	{
+		public void actionPerformed(ActionEvent evt)
+		{
+			m_pieTimerTriggered = true;
+			m_pieMenu.setActiveHighlight(true);
+			m_popup.setVisible(true);
+			m_popup.show(m_this, m_clickPie[0], m_clickPie[1]);
+			m_clickTimer.stop();
+		}
+	};
 
 	private ActionListener m_timerHandler = new ActionListener()
 	{
@@ -181,10 +200,18 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 		{
 			m_mousePos = e.getPoint();
 			m_popup.setVisible(false);
+			if(m_clickTimer != null)
+				m_clickTimer.stop();
+			m_clickPie[0] = e.getPoint().x;
+			m_clickPie[1] = e.getPoint().y;
+
+			m_clickTimer= new Timer(1000, m_pieMenuHandler);
+			m_clickTimer.start();
 		}
 
 		else if(e.getButton() == MouseEvent.BUTTON3)
 		{
+			m_pieMenu.setActiveHighlight(false);
 			m_popup.setVisible(true);
 			m_popup.show(this, e.getPoint().x, e.getPoint().y);
 		}
@@ -194,25 +221,40 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
    	{
 		if(e.getButton() == MouseEvent.BUTTON1)
 		{
-			Point p = e.getPoint();
-
-			//If the motion is enough to be taken
-			if((-m_mousePos.x + p.x) * (-m_mousePos.x + p.x) + 
-			   (-m_mousePos.y + p.y) * (-m_mousePos.y + p.y) > 400)
+			if(m_clickTimer != null)
 			{
-				if((p.x - m_mousePos.x) * (p.x - m_mousePos.x) < (p.y - m_mousePos.y) * (p.y - m_mousePos.y))
+				m_clickTimer.stop();
+				m_clickTimer = null;
+			}
+			if(m_pieTimerTriggered)
+			{
+				m_popup.setVisible(false);
+				m_pieMenu.moveHighligh();
+				m_pieTimerTriggered = false;
+			}
+
+			else
+			{
+				Point p = e.getPoint();
+
+				//If the motion is enough to be taken
+				if((-m_mousePos.x + p.x) * (-m_mousePos.x + p.x) + 
+				   (-m_mousePos.y + p.y) * (-m_mousePos.y + p.y) > 400)
 				{
-					if(p.y - m_mousePos.y > 0)
-						move(Direction.BOTTOM);
+					if((p.x - m_mousePos.x) * (p.x - m_mousePos.x) < (p.y - m_mousePos.y) * (p.y - m_mousePos.y))
+					{
+						if(p.y - m_mousePos.y > 0)
+							move(Direction.BOTTOM);
+						else
+							move(Direction.TOP);
+					}
 					else
-						move(Direction.TOP);
-				}
-				else
-				{
-					if(p.x - m_mousePos.x > 0)
-						move(Direction.RIGHT);
-					else
-						move(Direction.LEFT);
+					{
+						if(p.x - m_mousePos.x > 0)
+							move(Direction.RIGHT);
+						else
+							move(Direction.LEFT);
+					}
 				}
 			}
 		}
@@ -231,10 +273,31 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
     }
 	//End MouseListener
 	
+	//Start MouseMotionListener
+	
+	public void mouseMoved(MouseEvent e)
+	{
+	}
+
+	public void mouseDragged(MouseEvent e)
+	{
+		if(m_pieTimerTriggered)
+		{
+			System.out.println("TilePanel");
+			Point p = e.getPoint();
+			p.x -= m_clickPie[0];
+			p.y -= m_clickPie[1];
+			m_pieMenu.mouseMoved(p.x, p.y);
+		}
+	}
+
+	//End MouseMotionListener
+	
 
 	public TilePanel(InGame2 window)
 	{
 		m_inGame = window;
+		m_this = this;
 		m_model        = new Model();
 		m_tiles        = new Tile[4][4];
 
@@ -251,9 +314,13 @@ public class TilePanel extends JPanel implements KeyListener, MouseListener
 		updateGraphics(true);
 		addKeyListener(this);
 		addMouseListener(this);
+		addMouseMotionListener(this);
+
 		setFocusable(true);
 		requestFocusInWindow();
 		m_numberTimer = 0;
+		m_clickPie = new int[2];
+		m_currentMousePos = new int[2];
 		setPreferredSize(new Dimension(SIZE_PER_TILE*4, SIZE_PER_TILE*4));
 	}
 
